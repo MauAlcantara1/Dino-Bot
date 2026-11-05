@@ -1,0 +1,2 @@
+Al hacer el mapeo de especies que se encuentran en el dataset, se creo el archivo "diccionarios_especies.py".
+En el cual se pusieron casos de escritura para referirse a una especie en especifico
