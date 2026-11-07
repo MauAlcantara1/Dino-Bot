@@ -49,9 +49,8 @@ def extraer_multiples_dinosaurios(oracion):
     if dinosaurios_encontrados:
         return list(dinosaurios_encontrados) # Lo convertimos de vuelta a lista para usarlo
         
-    return ["Especie no detectada"]
+    return frase_limpia, dinosaurios_encontrados
 
 # Prueba
  
-print("Resultado:", extraer_multiples_dinosaurios("Quiero saber quien ganaria en una pelea entre el tiranosaurio y un triceratops")) 
 # Salida esperada: ['Tyrannosaurus rex', 'Triceratops']

@@ -9,6 +9,8 @@ def responder(pregunta, history):
     if not pregunta:
         return "", history
 
+    
+
     dinosaurios = extraer_multiples_dinosaurios(pregunta)
 
     if dinosaurios:
