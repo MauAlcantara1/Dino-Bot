@@ -1,84 +1,121 @@
 # DinoBot
 
-Chatbot educativo que funcionará como guía de una exposición de museo sobre dinosaurios. El equipo delimitará un catálogo de 8–10 especies y entrenará un clasificador supervisado para reconocer al menos 10 intenciones.
+DinoBot es un chatbot educativo en desarrollo para orientar a visitantes de una exposición sobre dinosaurios. El proyecto es académico y lo realiza un equipo de tres integrantes.
 
-## Objetivo
+## Objetivo del proyecto
 
-Interpretar preguntas escritas sobre las especies incluidas en el catálogo, mantener el contexto de una conversación breve y responder con información revisada. Cuando la pregunta sea ambigua, el sistema pedirá una aclaración; si queda fuera del tema, explicará el alcance de DinoBot.
+La versión final busca reconocer preguntas sobre un catálogo de 8–10 dinosaurios, identificar al menos 10 intenciones y responder con información revisada. También debe manejar preguntas de seguimiento, pedir aclaraciones cuando haya ambigüedad, responder cuando la consulta esté fuera del tema y permitir reiniciar la conversación.
 
-## Alcance inicial
+Estos son los objetivos del proyecto; todavía no están implementados por completo.
 
-- Dominio: guía virtual de una exposición de museo sobre dinosaurios.
-- Catálogo: 8–10 especies seleccionadas por el equipo; la lista y las fuentes se documentarán en `docs/dominio.md`.
-- Clasificación: mínimo 10 intenciones distintas entrenadas con ejemplos etiquetados por el equipo.
-- Datos: mínimo 200 ejemplos de entrenamiento y un conjunto de prueba independiente con al menos 50 ejemplos.
-- Modelos por comparar: Multinomial Naive Bayes y Linear SVM, con TF-IDF como representación inicial propuesta.
-- Conversación: contexto para preguntas de seguimiento, aclaraciones, respuesta fuera de dominio y reinicio.
-- Interfaz prevista: Streamlit; la decisión final se confirmará en el equipo.
+## Estado actual
 
-Las cifras, decisiones y modelos son requisitos o propuestas de trabajo; los resultados experimentales se añadirán cuando existan ejecuciones reproducibles.
+- El diccionario de especies contempla 8 dinosaurios: Tyrannosaurus rex, Triceratops, Stegosaurus, Brachiosaurus, Ankylosaurus, Velociraptor, Spinosaurus y Parasaurolophus.
+- `data/prueba.xlsx`, hoja `Ejemplos`, contiene 40 ejemplos de prueba: 20 de `consultar_alimentacion` y 20 de `consultar_tamano`. Es un conjunto inicial, no el dataset final.
+- El módulo de entrenamiento usa TF-IDF y LinearSVC. Divide los datos de ese Excel en entrenamiento y prueba con una partición aleatoria estratificada 80/20. Esa partición no sustituye al conjunto de prueba independiente que requiere la evaluación final.
+- La interfaz Gradio permite escribir mensajes, muestra las especies que detecta el módulo experimental y permite limpiar el chat.
+- La interfaz todavía no usa el clasificador de intenciones ni genera respuestas con datos paleontológicos. El historial se muestra, pero aún no se utiliza para entender preguntas de seguimiento.
+- El detector devuelve `["Especie no detectada"]` cuando no encuentra una especie. Como la interfaz recibe una lista no vacía, puede mostrar ese texto como si fuera una especie detectada; este comportamiento está pendiente de corregirse.
+- No se han publicado métricas finales ni un modelo entrenado guardado para cargar desde la interfaz.
 
-## Estructura del repositorio
+## Estructura actual
 
 ```text
-DinoBot/
+Dino-Bot/
 ├── data/
-│   └── templates/
-│       ├── train_template.csv
-│       └── test_template.csv
-├── docs/
-│   ├── conversaciones.md
-│   └── dominio.md
-├── models/                 # Modelos generados; no subir archivos grandes sin acordarlo
-├── notebooks/              # Exploración y experimentación
-├── reports/                # Métricas, tablas y reporte final
+│   ├── diccionarios_especies.py
+│   └── prueba.xlsx
+├── documentacion/
+│   └── prueba.txt
+├── metricas/
+│   └── prueba.txt
+├── models/
+│   ├── clasificador_intenciones.py
+│   └── clasificador_intenciones.ipynb
 ├── src/
-│   └── dinobot/
-│       ├── nlp/             # Normalización, TF-IDF y clasificación
-│       ├── dialogue/        # Intenciones, contexto y respuestas
-│       ├── knowledge/       # Catálogo de especies y fuentes
-│       ├── interface/       # Interfaz Streamlit
-│       └── evaluation/      # Métricas y evaluación final
-├── tests/                  # Pruebas del sistema
+│   ├── intenciones/
+│   │   ├── entrada_texto.py
+│   │   └── pruebaDeteccionDino.py
+│   ├── interfaz/
+│   │   └── interfaz.py
+│   └── main.py
 ├── .gitignore
 └── README.md
 ```
 
-## Dataset
+El notebook se conserva como material experimental y no es necesario para iniciar la interfaz. Su ejecución queda pendiente de revisar.
 
-Las plantillas de `data/templates/` contienen únicamente los encabezados. Copien y renombren para crear los archivos reales:
+## Instalación y ejecución de la interfaz
 
-- `data/train.csv`: ejemplos de desarrollo y entrenamiento, mínimo 200 y al menos 20 por intención.
-- `data/test.csv`: mínimo 50 frases nuevas, separadas y reservadas para la evaluación final.
-
-Columnas: `id`, `texto`, `intencion`, `especie`. El modelo aprenderá la relación entre `texto` e `intencion`. `especie` sirve para consultar el catálogo y mantener el contexto; se deja vacía cuando el mensaje no nombra una especie.
-
-No utilicen `test.csv` para seleccionar modelos, ajustar parámetros o modificar reglas. La comparación y selección se harán con validación dentro de los datos de desarrollo.
-
-## Instalación y ejecución
-
-Pendiente de completar al definir versiones y dependencias.
+Ejecuta estos comandos desde la carpeta raíz del repositorio:
 
 ```bash
-# Próximamente:
-# python -m venv .venv
-# pip install -r requirements.txt
-# streamlit run src/dinobot/app.py
+python -m venv .venv
 ```
 
-## Estado del proyecto
+Activa el entorno virtual:
 
-Fase actual: delimitar el dominio, acordar las intenciones, definir el formato de datos y preparar ejemplos de conversación. No hay métricas ni modelo final publicados todavía.
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
 
-## Responsabilidad de los módulos
+```bash
+# macOS o Linux
+source .venv/bin/activate
+```
 
-- `nlp/`: convierte el texto en características y permite entrenar o consultar los clasificadores.
-- `dialogue/`: toma la intención predicha, conserva el contexto y decide si responde o pide aclaración.
-- `knowledge/`: guarda fichas verificadas de las especies y sus fuentes.
-- `interface/`: recibe mensajes y presenta las respuestas; el reinicio debe limpiar la conversación.
-- `evaluation/`: calcula y presenta métricas sobre conjuntos de datos definidos para evaluación.
-- `tests/`: espacio para comprobar componentes y flujos conversacionales cuando se implementen.
+Instala las dependencias usadas por la interfaz y el prototipo del clasificador:
+
+```bash
+python -m pip install gradio rapidfuzz pandas scikit-learn openpyxl
+```
+
+Inicia la aplicación:
+
+```bash
+python src/main.py
+```
+
+Gradio mostrará en la terminal la dirección local para abrir el chatbot. La aplicación se inicia con `share=False`, por lo que no solicita crear un enlace público.
+
+Todavía no hay un archivo `requirements.txt` con versiones fijadas; las dependencias se documentarán ahí cuando el equipo acuerde sus versiones.
+
+## Datos de prueba
+
+El archivo `data/prueba.xlsx` tiene una hoja llamada `Ejemplos` y estas columnas:
+
+| Columna | Uso actual |
+|---|---|
+| `id` | Identificador del ejemplo |
+| `texto` | Pregunta que recibe el clasificador |
+| `intencion` | Etiqueta que el clasificador intenta predecir |
+| `especie` | Dinosaurio relacionado con el ejemplo |
+| `periodo` | Periodo geológico asociado |
+
+El prototipo de entrenamiento usa solamente `texto` e `intencion`. El dataset final deberá ampliarse para cubrir las 10 intenciones y separarse en datos de entrenamiento/validación y un conjunto de prueba independiente. La meta planteada es contar con al menos 200 ejemplos de entrenamiento y 50 ejemplos de prueba.
+
+## Módulos principales
+
+| Ruta | Responsabilidad actual |
+|---|---|
+| `src/main.py` | Inicia la aplicación Gradio. |
+| `src/interfaz/interfaz.py` | Presenta el chat, recibe preguntas y muestra el resultado de la detección de especies. |
+| `src/intenciones/pruebaDeteccionDino.py` | Prueba la detección aproximada de nombres y alias de dinosaurios. |
+| `src/intenciones/entrada_texto.py` | Archivo vacío, reservado para el procesamiento de la entrada. |
+| `data/diccionarios_especies.py` | Contiene un diccionario de especies y alias. |
+| `models/clasificador_intenciones.py` | Carga ejemplos desde Excel y entrena el prototipo TF-IDF + LinearSVC. |
+
+## Pendientes para la versión final
+
+- Acordar y documentar las 10 intenciones con su propósito, respuesta y ejemplos.
+- Ampliar el dataset y documentar su etiquetado, revisión de duplicados y particiones.
+- Comparar al menos dos clasificadores con el mismo protocolo y reportar accuracy, precisión, recall, F1 macro y matriz de confusión.
+- Guardar el modelo elegido junto con su preprocesamiento e integrarlo en la aplicación.
+- Crear el módulo de respuestas con información y fuentes verificables para las especies.
+- Implementar y probar el contexto conversacional, las aclaraciones, las consultas fuera de dominio y el reinicio.
+- Completar la documentación, las métricas y las instrucciones de instalación del equipo.
 
 ## Equipo
 
-Proyecto académico de tres integrantes. Añadir aquí los nombres y responsabilidades acordadas.
+Proyecto académico de tres integrantes. Añadir los nombres y las responsabilidades acordadas por el equipo.
