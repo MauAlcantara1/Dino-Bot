@@ -1,5 +1,5 @@
 import gradio as gr
-from pruebaDeteccionDino import extraer_multiples_dinosaurios
+from intenciones.pruebaDeteccionDino  import extraer_multiples_dinosaurios
 
 
 def responder(pregunta, history):
@@ -9,7 +9,6 @@ def responder(pregunta, history):
     if not pregunta:
         return "", history
 
-    # La pregunta viene directamente del Textbox como texto.
     dinosaurios = extraer_multiples_dinosaurios(pregunta)
 
     if dinosaurios:
@@ -43,5 +42,3 @@ with gr.Blocks() as demo:
     )
 
 
-if __name__ == "__main__":
-    demo.launch(share=False)
