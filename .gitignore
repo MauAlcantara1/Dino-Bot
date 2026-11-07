@@ -11,6 +11,9 @@ venv/
 .DS_Store
 Thumbs.db
 
+# Archivos temporales de Gradio
+.gradio/
+
 # Secretos
 .env
 .env.*
