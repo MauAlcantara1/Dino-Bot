@@ -40,6 +40,7 @@ Dino-Bot/
 │   │   └── interfaz.py
 │   └── main.py
 ├── .gitignore
+├── requirements.txt
 └── README.md
 ```
 
@@ -68,7 +69,7 @@ source .venv/bin/activate
 Instala las dependencias usadas por la interfaz y el prototipo del clasificador:
 
 ```bash
-python -m pip install gradio rapidfuzz pandas scikit-learn openpyxl
+python -m pip install -r requirements.txt
 ```
 
 Inicia la aplicación:
@@ -79,7 +80,7 @@ python src/main.py
 
 Gradio mostrará en la terminal la dirección local para abrir el chatbot. La aplicación se inicia con `share=False`, por lo que no solicita crear un enlace público.
 
-Todavía no hay un archivo `requirements.txt` con versiones fijadas; las dependencias se documentarán ahí cuando el equipo acuerde sus versiones.
+El archivo `requirements.txt` contiene las dependencias directas sin versiones fijadas. Antes de la entrega final, el equipo deberá probar y acordar versiones compatibles para reproducir el entorno.
 
 ## Datos de prueba
 
