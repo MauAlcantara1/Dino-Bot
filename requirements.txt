@@ -1,0 +1,7 @@
+# Dependencias directas de DinoBot
+# Versiones sin fijar hasta validar el entorno del equipo.
+gradio
+rapidfuzz
+pandas
+scikit-learn
+openpyxl
