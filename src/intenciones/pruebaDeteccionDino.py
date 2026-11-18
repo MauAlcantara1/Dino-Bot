@@ -36,18 +36,16 @@ def extraer_multiples_dinosaurios(oracion):
         limit=None # Nos aseguramos de que evalúe toda la lista
     )
     
-    # Usamos un 'set' (conjunto) en lugar de una lista para evitar que 
-    # se guarde el mismo dinosaurio dos veces.
+
     dinosaurios_encontrados = set()
     
     for entidad, puntaje, _ in coincidencias:
         if puntaje >= 60:
-            # Traducimos la entidad encontrada a su nombre oficial
             nombre_oficial = mapa_alias.get(entidad, entidad)
             dinosaurios_encontrados.add(nombre_oficial)
             
     if dinosaurios_encontrados:
-        return list(dinosaurios_encontrados) # Lo convertimos de vuelta a lista para usarlo
+        return list(dinosaurios_encontrados) 
         
     return frase_limpia, dinosaurios_encontrados
 
