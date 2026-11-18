@@ -1,4 +1,5 @@
 from rapidfuzz import process, fuzz, utils
+import re
 
 # Diccionario simplificado: solo nombres base y alias completamente distintos
 entidades_base = [
@@ -27,28 +28,61 @@ mapa_alias = {
 }
 
 def extraer_multiples_dinosaurios(oracion):
-    # process.extract devuelve una lista de tuplas: [(entidad, puntaje, indice), ...]
     coincidencias = process.extract(
         oracion, 
         entidades_base, 
         scorer=fuzz.token_set_ratio,
         processor=utils.default_process,
-        limit=None # Nos aseguramos de que evalúe toda la lista
+        limit=None
     )
-    
 
     dinosaurios_encontrados = set()
-    
+    palabras_a_eliminar = set()
+
     for entidad, puntaje, _ in coincidencias:
         if puntaje >= 60:
             nombre_oficial = mapa_alias.get(entidad, entidad)
             dinosaurios_encontrados.add(nombre_oficial)
-            
-    if dinosaurios_encontrados:
-        return list(dinosaurios_encontrados) 
+
+            for token in utils.default_process(entidad).split():
+                palabras_a_eliminar.add(token)
+
+    if not dinosaurios_encontrados:
+        return oracion.strip(), []
+
+    palabras_restantes = []
+    for palabra in oracion.split():
+        # Separamos en sub-tokens por si la palabra tiene guiones (ej. "t-rex" -> ["t", "rex"])
+        sub_tokens = utils.default_process(palabra).split()
         
-    return frase_limpia, dinosaurios_encontrados
+        if sub_tokens:
+            es_dinosaurio = True
+            for sub in sub_tokens:
+                coincide = False
+                for token_dino in palabras_a_eliminar:
+                    if len(sub) <= 2:
+                        if sub == token_dino:
+                            coincide = True
+                            break
+                    elif fuzz.ratio(sub, token_dino) >= 80:
+                        coincide = True
+                        break
+                # Si al menos un pedazo no es dinosaurio, conservamos la palabra
+                if not coincide:
+                    es_dinosaurio = False
+                    break
+        else:
+            es_dinosaurio = False
+
+        if not es_dinosaurio:
+            palabras_restantes.append(palabra)
+
+    frase_limpia = re.sub(r'\s+', ' ', " ".join(palabras_restantes)).strip()
+
+    print("Frase detectada:", frase_limpia)
+    print("Dinos detectados:", list(dinosaurios_encontrados))
+    return frase_limpia, list(dinosaurios_encontrados)
 
 # Prueba
- 
+#extraer_multiples_dinosaurios("Que comen los cuello largo y los t-rex y los tres cuernos")
 # Salida esperada: ['Tyrannosaurus rex', 'Triceratops']

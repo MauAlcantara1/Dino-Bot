@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import gradio as gr
 from intenciones.pruebaDeteccionDino  import extraer_multiples_dinosaurios
 
@@ -11,10 +14,10 @@ def responder(pregunta, history):
 
     
 
-    dinosaurios = extraer_multiples_dinosaurios(pregunta)
+    frase_limpia,dinosaurios = extraer_multiples_dinosaurios(pregunta)
 
-    if dinosaurios:
-        respuesta = "Dinosaurios detectados: " + ", ".join(dinosaurios)
+    if dinosaurios:   
+        respuesta = "Oracion detectada: "+"".join(frase_limpia)+", Dinosaurios detectados: " + ", ".join(dinosaurios) 
     else:
         respuesta = "No encontre dinosaurios en tu pregunta."
 
