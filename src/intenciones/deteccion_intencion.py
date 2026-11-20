@@ -45,16 +45,17 @@ def respuestas(intencion, dinosaurio):
 
 
 def detectar_intencion(frase, dinosaurios):
+    vectorizador = modelo.named_steps["tfidfvectorizer"]
 
-    vectorizar_frase = modelo.named_steps["tfidfvectorizer"]
+    if vectorizador.transform([frase]).nnz == 0:
+        return "Lo siento, no logré entender tu pregunta."
 
-    if vectorizar_frase.transform([frase]).nnz == 0:
-        return None, dinosaurios
-    
+    if not dinosaurios:
+        return "¿Sobre qué dinosaurio quieres preguntar?"
+
     intencion = modelo.predict([frase])[0]
 
-    respuesta_final = respuestas(intencion, dinosaurios)
-    return respuesta_final
-
-
-print(detectar_intencion("Hola puedes hacerme un codigo para imprimir hola mundo en c", "Tyrannosaurus rex"))
+    return "\n".join(
+        respuestas(intencion, dinosaurio)
+        for dinosaurio in dinosaurios
+    )
