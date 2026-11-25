@@ -86,3 +86,35 @@ def extraer_multiples_dinosaurios(oracion):
 # Prueba
 #extraer_multiples_dinosaurios("Que comen los cuello largo y los t-rex y los tres cuernos")
 # Salida esperada: ['Tyrannosaurus rex', 'Triceratops']
+
+def actualizar_memoria(dinos_detectados, memoria):
+    dinos_actuales, _ = memoria
+
+    if dinos_detectados:
+        # Si el usuario mencionó dinosaurios nuevos, pasan a la primera posición
+        # y los que estaban activos pasan a ser los anteriores
+        return (dinos_detectados, dinos_actuales)
+    else:
+        # Si no mencionó ninguno, mantenemos el contexto actual en ambas posiciones
+        return (dinos_actuales, dinos_actuales)
+
+# Estado inicial antes de empezar el chat
+memoria = ([], [])
+
+prompts_prueba = [
+    "Háblame del t-rex",
+    "¿Y qué come?",
+    "¿Dónde vivía el raptor?",
+    "¿Cuánto medía?"
+]
+
+for prompt in prompts_prueba:
+    frase_limpia, dinos_detectados = extraer_multiples_dinosaurios(prompt)
+    memoria = actualizar_memoria(dinos_detectados, memoria)
+    
+    # Siempre buscas la respuesta usando la primera posición de la tupla
+    dinos_a_consultar = memoria[0]
+    
+    print(f"Prompt: '{prompt}'")
+    print(f"  -> Memoria: {memoria}")
+    print(f"  -> Buscar respuesta para: {dinos_a_consultar}\n")
