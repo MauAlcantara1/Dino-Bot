@@ -1,5 +1,6 @@
 from .pruebaDeteccionDino import extraer_multiples_dinosaurios
 from .deteccion_intencion import clasificar_intencion, respuestas
+from .preprocesamiento import limpiar_texto
 
 def contexto_inicial():
     return {"especies": [], "intencion_pendiente": None}
@@ -7,7 +8,8 @@ def contexto_inicial():
 def procesar_mensaje(pregunta, contexto=None):
     """Devuelve respuesta, nuevo contexto y diagnostico sin depender de Gradio."""
     contexto = contexto or contexto_inicial()
-    frase, detectadas = extraer_multiples_dinosaurios(pregunta)
+    frase_original, detectadas = extraer_multiples_dinosaurios(pregunta)
+    frase = limpiar_texto(frase_original)
     especies = detectadas or list(contexto["especies"])
     intencion = clasificar_intencion(frase)
     # Si el visitante solo responde con el nombre, recuperar la pregunta pendiente.
@@ -22,6 +24,7 @@ def procesar_mensaje(pregunta, contexto=None):
     else:
         respuesta = "\n".join(respuestas(intencion, d) for d in especies)
     diagnostico = {
+        "texto_sin_especies": frase_original,
         "texto_clasificado": frase,
         "intencion": intencion,
         "especies_detectadas": detectadas,

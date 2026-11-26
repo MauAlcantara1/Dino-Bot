@@ -7,6 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from intenciones.dialogo import contexto_inicial, procesar_mensaje
 from intenciones.pruebaDeteccionDino import extraer_multiples_dinosaurios
+from intenciones.preprocesamiento import limpiar_texto
+from intenciones.deteccion_intencion import clasificar_intencion
 
 class TestDialogo(unittest.TestCase):
     def test_dataset(self):
@@ -16,6 +18,20 @@ class TestDialogo(unittest.TestCase):
                 _, _, debug = procesar_mensaje(fila.texto, contexto_inicial())
                 self.assertEqual(debug["intencion"], fila.intencion)
                 self.assertEqual(debug["especies_detectadas"], [])
+
+    def test_limpieza(self):
+        self.assertEqual(limpiar_texto("que comian los dinosaurios y"), "que comian")
+        self.assertEqual(limpiar_texto("¿Dónde no vivía el dinosaurio?"), "donde no vivia")
+        self.assertEqual(limpiar_texto("¿Cuánto pesaba?"), "cuanto pesaba")
+        self.assertEqual(limpiar_texto("¿En qué época vivió?"), "en que epoca vivio")
+        self.assertIsNone(clasificar_intencion("los dinosaurios y"))
+        self.assertEqual(clasificar_intencion("que comian los dinosaurios y"), "consultar_alimentacion")
+
+    def test_limpieza_en_dialogo(self):
+        _, _, debug = procesar_mensaje("que comian los dinosaurios t-rex y velociraptor")
+        self.assertEqual(debug["texto_clasificado"], "que comian")
+        self.assertEqual(debug["intencion"], "consultar_alimentacion")
+        self.assertEqual(debug["especies_detectadas"], ["Tyrannosaurus rex", "Velociraptor"])
 
     def test_detector(self):
         self.assertEqual(extraer_multiples_dinosaurios("¿Qué comía el T-rex?"), ("¿Qué comía?", ["Tyrannosaurus rex"]))

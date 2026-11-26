@@ -1,13 +1,14 @@
 from pathlib import Path
 from joblib import load
 from random import choice
+from .preprocesamiento import limpiar_texto
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 modelo = load(BASE_DIR / "models" / "clasificador_intenciones.joblib")
 
 def clasificar_intencion(frase):
     """Clasificar independientemente de la especie y de las respuestas disponibles."""
-    frase = frase.strip()
+    frase = limpiar_texto(frase)
     if not frase or modelo.named_steps["tfidfvectorizer"].transform([frase]).nnz == 0:
         return None
     return str(modelo.predict([frase])[0])
