@@ -1,50 +1,34 @@
 import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import gradio as gr
-from intenciones.pruebaDeteccionDino  import extraer_multiples_dinosaurios
-from intenciones.deteccion_intencion import detectar_intencion
+from intenciones.dialogo import contexto_inicial, procesar_mensaje
 
-
-def responder(pregunta, history):
+def responder(pregunta, history, contexto):
     history = history or []
     pregunta = pregunta.strip()
-
     if not pregunta:
-        return "", history
-
-    frase_limpia, dinosaurios = extraer_multiples_dinosaurios(pregunta)
-
-    respuesta = detectar_intencion(frase_limpia, dinosaurios)
-
-    if dinosaurios:   
-        respuesta = "Oracion detectada: "+"".join(respuesta)+", Dinosaurios detectados: " + ", ".join(dinosaurios) 
-    else:
-        respuesta = "No encontre dinosaurios en tu pregunta."
-
+        return "", history, contexto, None
+    respuesta, contexto, diagnostico = procesar_mensaje(pregunta, contexto)
     history = history + [
         {"role": "user", "content": pregunta},
-        {"role": "assistant", "content": respuesta}
+        {"role": "assistant", "content": respuesta},
     ]
-
-    return "", history
-
+    return "", history, contexto, diagnostico
 
 with gr.Blocks() as demo:
     DinoBot = gr.Chatbot()
     msg = gr.Textbox(label="Escribe tu pregunta")
+    estado = gr.State(contexto_inicial())
+    diagnostico = gr.JSON(label="Diagnóstico del clasificador (modo de pruebas)")
     clear = gr.Button("Limpiar conversación")
-
     msg.submit(
         responder,
-        inputs=[msg, DinoBot],
-        outputs=[msg, DinoBot]
+        inputs=[msg, DinoBot, estado],
+        outputs=[msg, DinoBot, estado, diagnostico],
     )
-
     clear.click(
-        lambda: ([], ""),
-        outputs=[DinoBot, msg],
-        queue=False
+        lambda: ([], "", contexto_inicial(), None),
+        outputs=[DinoBot, msg, estado, diagnostico],
+        queue=False,
     )
-
-

@@ -1,8 +1,16 @@
+from pathlib import Path
 from joblib import load
 from random import choice
 
+BASE_DIR = Path(__file__).resolve().parents[2]
+modelo = load(BASE_DIR / "models" / "clasificador_intenciones.joblib")
 
-modelo = load("models/clasificador_intenciones.joblib")
+def clasificar_intencion(frase):
+    """Clasificar independientemente de la especie y de las respuestas disponibles."""
+    frase = frase.strip()
+    if not frase or modelo.named_steps["tfidfvectorizer"].transform([frase]).nnz == 0:
+        return None
+    return str(modelo.predict([frase])[0])
 
 def respuestas(intencion, dinosaurio):
     diccionario = {
@@ -30,32 +38,16 @@ def respuestas(intencion, dinosaurio):
                 "En longitud, el Triceratops rondaba los 9 metros.",
             ],
         },
-        
     }
-
-    if intencion not in diccionario:
-        return "Lo siento, no logre entender tu pregunta"
-
-    opciones = diccionario[intencion].get(dinosaurio)
-
+    opciones = diccionario.get(intencion, {}).get(dinosaurio)
     if not opciones:
-        return f"Lo siento aun no dispongo informacion sobre {dinosaurio}"
-
+        return f"Reconocí el tema de tu pregunta, pero todavía no tengo una respuesta implementada para {dinosaurio} ({intencion})."
     return choice(opciones)
 
-
 def detectar_intencion(frase, dinosaurios):
-    vectorizador = modelo.named_steps["tfidfvectorizer"]
-
-    if vectorizador.transform([frase]).nnz == 0:
+    intencion = clasificar_intencion(frase)
+    if intencion is None:
         return "Lo siento, no logré entender tu pregunta."
-
     if not dinosaurios:
         return "¿Sobre qué dinosaurio quieres preguntar?"
-
-    intencion = modelo.predict([frase])[0]
-
-    return "\n".join(
-        respuestas(intencion, dinosaurio)
-        for dinosaurio in dinosaurios
-    )
+    return "\n".join(respuestas(intencion, d) for d in dinosaurios)
